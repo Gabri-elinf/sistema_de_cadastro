@@ -79,7 +79,7 @@ def criar_banco_e_tabela(conn):
                     CREATE TABLE IF NOT EXISTS {NOME_TABELA} (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         nome VARCHAR(120) NOT NULL,
-                        email VARCHAR(150) NOT NULL,
+                        email VARCHAR(150) UNIQUE NOT NULL,
                         telefone VARCHAR(20) NOT NULL,
                         criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     )   ENGINE=InnoDB DEFAULT CHARACTER=utf8mb4;;
