@@ -34,9 +34,9 @@ def aplicar_estilo (root:tk.Tk):
 
 def aplicar_zebra_treeview (tree: ttk.Treeview):
 
-    tree.tag_configure("oddrow", background="F7F7F7")
+    tree.tag_configure("oddrow", background="#F7F7F7")
 
-    tree.tag_configure("evenrow", background="FFFFFF")
+    tree.tag_configure("evenrow", background="#FFFFFF")
 
 def preencher_treeview (tree: ttk.Treeview, rows):
 

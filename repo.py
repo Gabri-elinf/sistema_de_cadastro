@@ -26,7 +26,7 @@ class PessoaRepo:
     def listar_todos(self) -> List[Tuple]:
 
         self.cur.execute(
-            f"SELECT id. nome, email, telefone, criado_em FROM pessoas ORDER BY id DESC;"
+            f"SELECT id, nome, email, telefone, criado_em "
             
             f"FROM {NOME_TABELA} ORDER BY id DESC;"
         )

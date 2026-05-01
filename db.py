@@ -47,8 +47,11 @@ def conectar(usar_banco=True):
                 autocommit=True,
                 cursorclass=pymysql.cursors.Cursor
             )
+
             criar_banco_e_tabela(conn)
+
             conn.close()
+
             return pymysql.connect(
                 host=HOST,
                 port=PORTA,
@@ -60,7 +63,7 @@ def conectar(usar_banco=True):
                 cursorclass=pymysql.cursors.Cursor
             )
         raise
- 
+
 #Função responsável que recebe como parâmetro uma conexão ativa.
 #Cursor permite executar comandos SQL.
 def criar_banco_e_tabela(conn):
