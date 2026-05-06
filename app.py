@@ -369,6 +369,8 @@ class AppCadastro(tk.Tk):
 
         self.var_telefone.set("")
 
+        self.var_pesquisa.set("")
+
         self.tree.selection_remove(self.tree.selection())
 
     def _ordernar_por(self, coluna_idx):

@@ -39,12 +39,10 @@ class PessoaRepo:
 
         self.cur.execute(
             f"""
-                SELECT * FROM pessoas WHERE nome LIKE {like};
-                FROM {NOME_TABELA} 
-                WHERE nome LIKE %s 
-                    OR email LIKE %s 
-                    OR telefone LIKE %s
-                ORDER BY id DESC;
+                SELECT id, nome, email, telefone, criado_em
+            FROM {NOME_TABELA}
+            WHERE nome LIKE %s OR email LIKE %s OR telefone LIKE %s
+            ORDER BY id DESC
             """,
             (like, like, like),
         )
