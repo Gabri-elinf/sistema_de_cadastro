@@ -129,23 +129,50 @@ class AppCadastro(tk.Tk):
         frm.grid_columnconfigure(3, weight=1)
 
     def _montar_botoes(self):
-
         frm = ttk.Frame(self)
+        frm.pack(side=tk.TOP, fill=tk.X, padx=10, pady=5)
 
-        frm.pack(side=tk.TOP, fill=tk.X, padx = 10, pady = 5)
+        ttk.Button(
+            frm,
+            text="Cadastrar",
+            command=self.cadastrar,
+            style="Success.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
-        #ttk.Button(frm, text="Cadastrar", command=self.cadastrar).pack(side=tk.LEFT, padx=5)
-        ttk.Button(frm, text="Cadastrar", command=self.cadastrar).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            frm,
+            text="Atualizar",
+            command=self.atualizar,
+            style="Primary.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(frm, text="Atualizar", command=self.atualizar).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            frm,
+            text="Excluir",
+            command=self.excluir,
+            style="Danger.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(frm, text="Excluir", command=self.excluir).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            frm,
+            text="Limpar Campos (Ctrl+N)",
+            command=self._limpar_campos,
+            style="Secondary.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(frm, text="Limpar Campos (Ctrl+N)", command=self._limpar_campos).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            frm,
+            text="Pesquisar",
+            command=self.pesquisar,
+            style="Primary.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
-        ttk.Button(frm, text="Pesquisar", command=self.pesquisar).pack(side=tk.LEFT, padx=5)
-
-        ttk.Button(frm, text="Exportar para Excel", command=self.exportar_excel).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            frm,
+            text="Exportar para Excel",
+            command=self.exportar_excel,
+            style="Excel.TButton"
+        ).pack(side=tk.LEFT, padx=5)
 
 
     def _montar_tabela(self):
@@ -182,7 +209,8 @@ class AppCadastro(tk.Tk):
 
         hsb = ttk.Scrollbar(frm, orient="horizontal", command=self.tree.xview)
 
-        self.tree.configure(yscroll=vsb.set, xscroll = hsb.set)
+        #self.tree.configure(yscroll=vsb.set, xscroll = hsb.set)
+        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
 
         vsb.pack(side=tk.RIGHT, fill=tk.Y)
 
