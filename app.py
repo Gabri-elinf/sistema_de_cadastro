@@ -10,7 +10,9 @@ from openpyxl import Workbook
 #Converte números de colunas em letras, utilizado para ajustar as larguras das colunas.
 from openpyxl.utils import get_column_letter
 
-from db import conectar
+#from db import conectar
+
+from usuario_view import TelaCadastroUsuario
 
 from repo import PessoaRepo
 
@@ -31,54 +33,87 @@ def validar(nome: str, email: str, telefone: str):
 
     return True, ""
 
-
 class AppCadastro(tk.Tk):
 
-    def __init__(self):
-
+    def __init__(self, conn, usuario_logado):
         super().__init__()
 
-        self.title("Cadastro de Pessoas")
+        self.conn = conn
+        self.usuario_logado = usuario_logado
+        self.repo = PessoaRepo(self.conn)
 
+        self.title(f"Cadastro de Pessoas - Usuário: {usuario_logado['nome']}")
         self.geometry("980x580")
-
         self.minsize(900, 520)
 
         aplicar_estilo(self)
 
-        self.conn = conectar(usar_banco=True)
-
-        self.repo = PessoaRepo(self.conn)
-
         self.var_id = tk.StringVar()
-
         self.var_nome = tk.StringVar()
-
         self.var_email = tk.StringVar()
-
         self.var_telefone = tk.StringVar()
-
         self.var_pesquisa = tk.StringVar()
-
         self.var_status = tk.StringVar(value="Pronto.")
 
         self._montar_formulario()
-
         self._montar_botoes()
-
         self._montar_tabela()
-
         self._montar_statusbar()
-
         self._centralizar_janela()
 
         self.bind("<Control-n>", lambda e: self._limpar_campos())
-
         self.bind("<F5>", lambda e: self.listar_todos())
 
         self.listar_todos()
-
         self.protocol("WM_DELETE_WINDOW", self._fechar)
+
+# class AppCadastro(tk.Tk):
+#
+#     def __init__(self):
+#
+#         super().__init__()
+#
+#         self.title("Cadastro de Pessoas")
+#
+#         self.geometry("980x580")
+#
+#         self.minsize(900, 520)
+#
+#         aplicar_estilo(self)
+#
+#         self.conn = conectar(usar_banco=True)
+#
+#         self.repo = PessoaRepo(self.conn)
+#
+#         self.var_id = tk.StringVar()
+#
+#         self.var_nome = tk.StringVar()
+#
+#         self.var_email = tk.StringVar()
+#
+#         self.var_telefone = tk.StringVar()
+
+        # self.var_pesquisa = tk.StringVar()
+        #
+        # self.var_status = tk.StringVar(value="Pronto.")
+        #
+        # self._montar_formulario()
+        #
+        # self._montar_botoes()
+        #
+        # self._montar_tabela()
+        #
+        # self._montar_statusbar()
+        #
+        # self._centralizar_janela()
+        #
+        # self.bind("<Control-n>", lambda e: self._limpar_campos())
+        #
+        # self.bind("<F5>", lambda e: self.listar_todos())
+        #
+        # self.listar_todos()
+        #
+        # self.protocol("WM_DELETE_WINDOW", self._fechar)
 
 
     def _centralizar_janela(self):
@@ -174,6 +209,20 @@ class AppCadastro(tk.Tk):
             style="Excel.TButton"
         ).pack(side=tk.LEFT, padx=5)
 
+        ttk.Button(
+            frm,
+            text="Cadastrar Usuário",
+            command=self.abrir_tela_usuario,
+            style="Primary.TButton"
+        ).pack(side=tk.LEFT, padx=5)
+
+        ttk.Button(
+            frm,
+            text="Sair",
+            command=self._fechar,
+            style="Danger.TButton"
+        ).pack(side=tk.LEFT, padx=5)
+
 
     def _montar_tabela(self):
 
@@ -229,32 +278,23 @@ class AppCadastro(tk.Tk):
             side=tk.BOTTOM, fill=tk.X)
 
     def cadastrar(self):
-
         nome = self.var_nome.get().strip()
-
         email = self.var_email.get().strip()
-
         telefone = self.var_telefone.get().strip()
 
         ok, msg = validar(nome, email, telefone)
-
         if not ok:
-
             messagebox.showwarning("Validação", msg)
-
             return
+
         try:
-
-            self.repo.inserir(nome, email, telefone)
-
-            self.var_status.set("Cadastrado realizado com sucesso.")
-
+            usuario_id = self.usuario_logado["id"]
+            self.repo.inserir(nome, email, telefone, usuario_id)
+            self.conn.commit()
+            self.var_status.set("Cadastro realizado com sucesso.")
             self.listar_todos()
-
             self._limpar_campos()
-
         except Exception as e:
-
             messagebox.showerror("Erro ao Cadastrar", f"Falha ao inserir:\n\n{e}")
 
     def atualizar(self):
@@ -489,19 +529,20 @@ class AppCadastro(tk.Tk):
 
             messagebox.showerror(title="Erro ao exportar", message=f"Falha ao exportar:\n\n{e}")
 
-
     def _fechar(self):
+        if not messagebox.askyesno("Sair", "Deseja realmente sair do sistema?"):
+            return
 
         try:
-
             if self.conn:
-
                 self.conn.close()
-
         except:
             pass
 
         self.destroy()
+
+    def abrir_tela_usuario(self):
+        TelaCadastroUsuario(self, self.conn)
 
 
 

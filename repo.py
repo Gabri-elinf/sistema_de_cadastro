@@ -15,12 +15,12 @@ class PessoaRepo:
         #Criar conexão e permitir realizar os comandos CRUD.
         self.cur = conn.cursor()
 
-    def inserir(self, nome: str, email: str, telefone: str) ->None:
+    def inserir(self, nome: str, email: str, telefone: str, usuario_id: int) ->None:
 
         self.cur.execute(
-            f"INSERT INTO {NOME_TABELA} (nome, email, telefone) VALUES (%s, %s, %s)",
+            f"INSERT INTO {NOME_TABELA} (nome, email, telefone, usuario_id) VALUES (%s, %s, %s, %s)",
 
-            (nome, email, telefone),
+            (nome, email, telefone, usuario_id),
         )
 
     def listar_todos(self) -> List[Tuple]:

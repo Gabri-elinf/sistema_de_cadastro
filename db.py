@@ -91,4 +91,20 @@ def criar_banco_e_tabela(conn):
         #Engine: Tipo de mecanismo de armazenamento usado pelo o MySQL.
         #InnoDB: Suporta transações e chaves estrangeiras, para relacionar tabelas no futuro.
 
-
+def criar_tabela_logs(conn):
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS logs_sistema (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            usuario_id INT NOT NULL,
+            acao VARCHAR(50) NOT NULL,
+            tabela_afetada VARCHAR(50) NOT NULL,
+            registro_id INT NULL,
+            descricao TEXT NULL,
+            criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_logs_usuario
+                FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        )
+    """)
+    conn.commit()
+    cur.close()
