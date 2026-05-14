@@ -1,9 +1,15 @@
 import bcrypt
+from datetime import datetime, timedelta
+from email_service import gerar_senha_temporaria, enviar_email_recuperacao
 
-def gerar_hash_senha(senha: str) -> str:
-    return bcrypt.hashpw(senha.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+def gerar_hash_senha(senha):
+    return bcrypt.hashpw(
+        senha.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
 
-def verificar_senha(senha_digitada: str, senha_hash: str) -> bool:
+
+def verificar_senha(senha_digitada, senha_hash):
     return bcrypt.checkpw(
         senha_digitada.encode("utf-8"),
         senha_hash.encode("utf-8")
@@ -34,29 +40,88 @@ def criar_usuario(conn, nome: str, login: str, senha: str):
     conn.commit()
     cur.close()
 
-def autenticar_usuario(conn, login: str, senha: str):
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT id, nome, login, senha_hash, ativo
+def buscar_usuario_por_login(conn, login):
+    cursor = conn.cursor()
+    sql = """
+        SELECT id, nome, login, email, senha_hash, ativo, deve_trocar_senha
         FROM usuarios
         WHERE login = %s
-    """, (login,))
-    usuario = cur.fetchone()
-    cur.close()
+    """
+    cursor.execute(sql, (login,))
+    resultado = cursor.fetchone()
+    cursor.close()
+
+    if resultado:
+        return {
+            "id": resultado[0],
+            "nome": resultado[1],
+            "login": resultado[2],
+            "email": resultado[3],
+            "senha_hash": resultado[4],
+            "ativo": resultado[5],
+            "deve_trocar_senha": resultado[6]
+        }
+    return None
+
+
+def autenticar_usuario(conn, login, senha):
+    usuario = buscar_usuario_por_login(conn, login)
 
     if not usuario:
         return None
 
-    usuario_id, nome, login_db, senha_hash, ativo = usuario
+    if usuario["ativo"] != 1:
+        return None
 
-    if ativo != 1:
+    senha_hash = usuario["senha_hash"]
+
+    if not senha_hash:
         return None
 
     if verificar_senha(senha, senha_hash):
-        return {
-            "id": usuario_id,
-            "nome": nome,
-            "login": login_db
-        }
+        return usuario
 
     return None
+
+
+def atualizar_senha(conn, login, nova_senha):
+    nova_senha_hash = gerar_hash_senha(nova_senha)
+
+    cursor = conn.cursor()
+    sql = """
+        UPDATE usuarios
+        SET senha_hash = %s
+        WHERE login = %s
+    """
+    cursor.execute(sql, (nova_senha_hash, login))
+    conn.commit()
+    cursor.close()
+
+def atualizar_senha_temporaria(conn, login, nova_senha):
+    nova_senha_hash = gerar_hash_senha(nova_senha)
+
+    cursor = conn.cursor()
+    sql = """
+        UPDATE usuarios
+        SET senha_hash = %s,
+            deve_trocar_senha = 1
+        WHERE login = %s
+    """
+    cursor.execute(sql, (nova_senha_hash, login))
+    conn.commit()
+    cursor.close()
+
+def trocar_senha_definitiva(conn, login, nova_senha):
+    nova_senha_hash = gerar_hash_senha(nova_senha)
+
+    cursor = conn.cursor()
+    sql = """
+        UPDATE usuarios
+        SET senha_hash = %s,
+            deve_trocar_senha = 0
+        WHERE login = %s
+    """
+    cursor.execute(sql, (nova_senha_hash, login))
+    conn.commit()
+    cursor.close()
+
